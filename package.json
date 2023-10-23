@@ -1,0 +1,20 @@
+{
+  "name": "leisure_api",
+  "version": "1.0.0",
+  "main": "ser.js",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.6.3",
+    "nodemon": "^3.0.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js",
+    "build": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "��#\u0000 \u0000n\u0000e\u0000w\u0000_\u0000C\u0000a\u0000s\u0000t\u0000r\u0000o\u0000_\u0000A\u0000P\u0000I\u0000\r\u0000 \u0000"
+}
