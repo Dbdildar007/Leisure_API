@@ -3,6 +3,7 @@ const connect = require('./config');
 require('dotenv').config();
 const HomeData = require('./HomeData');
 const UserModel = require('./UserModel')
+const Content = require('./Content')
 
 const jwt = require('jsonwebtoken');
 
@@ -178,6 +179,7 @@ app.get('/get/last_10/course', async (req, resp) => {
 
 
 
+
 //add new chapter in chapter array in Homedata collection using course id
 
 app.post('/add_new/chapter/:id', async (req, resp) => {
@@ -222,130 +224,217 @@ app.patch('/update/chapter_details/:id', async (req, resp) => {
     }
 })
 
-
-
-
-
-
 /*
+//delete a particular chapter from the chapter array using chapter id
 
-
-//add session details in database
-
-app.post('/create_session_box/first_time', async (req, resp) => {
+app.delete('/delete/chapter/:id', (req, resp) => {
     try {
-        const { Heading, Video_url, poster_url, session_no, Episode_no, Length, Release_Date } = req.body;
-        let data = { Heading, Video_url, poster_url, session_no, Episode_no, Length, Release_Date };
+        let id = req.params.id;
+        HomeData.findByIdAndDelete({ 'chapters._id': id },{ new: true })
+            .then((response) => {
+                resp.status(200).send({ result: "Chapter deleted successfully:", response: response });
+            }).catch((error) => {
+                resp.status(400).send({ result: "having issue while deleting:", error: error });
+            })
+    } catch (e) {
+        resp.status(500).send({ result: "having fatal error:", error: e });
+    }
+})
+*/
 
-        const rr = await SessionModel({ data });
+
+
+//create chapter content box first time
+
+app.post('/create_chapter_box/first_time', async (req, resp) => {
+    try {
+        const { Heading,
+            desc1,
+            desc2,
+            desc3,
+            desc4,
+            desc5,
+            desc6,
+            desc7,
+            desc8,
+            desc9,
+            desc10,
+            image_url1,
+            image_url2,
+            image_url3,
+            image_url4,
+            image_url5,
+            after_desc1,
+            after_desc2,
+            after_desc3,
+            after_desc4 } = req.body;
+        let data = {
+            Heading,
+            desc1,
+            desc2,
+            desc3,
+            desc4,
+            desc5,
+            desc6,
+            desc7,
+            desc8,
+            desc9,
+            desc10,
+            image_url1,
+            image_url2,
+            image_url3,
+            image_url4,
+            image_url5,
+            after_desc1,
+            after_desc2,
+            after_desc3,
+            after_desc4
+        };
+
+        const rr = await Content({ data });
         rr.save().then((response) => {
-            resp.status(200).send({ result: "created successfully.", Response: response });
+            resp.status(200).send({ result: "created successfully.", response: response });
         }).catch((error) => {
-            resp.status(400).send({ result: "Having issue while creating the contest box.", Response: error });
+            resp.status(400).send({ result: "Having issue while creating the contest box.", error: error });
         })
     }
     catch (e) {
-        resp.status(500).send({ result: "Having fatal issue.", Response: e });
+        resp.status(500).send({ result: "Having fatal issue.", error: e });
     }
 
 })
 
-//delete a particular session from movies data
+//get all chapter contents 
 
-app.post('/movies/delete/session_details/:id', async (req, resp) => {
-
+app.get('/getAll/contest', async (req, resp) => {
     try {
-        let id = req.params.id;
-        let session_id = req.body.session_id;
-        console.log(id, "body ", session_id)
-        await MovieModel.findOneAndUpdate(
-            { _id: id },
-            { $pull: { Sessions: { _id: session_id } } },
-            { new: true }
-        ).then((response) => {
-            resp.status(200).send({ result: "deleted successfully.", Response: response.deletedCount });
-        }).catch((er) => {
-            resp.status(400).send({ result: "getting issue while deleting this data", Response: er });
-        })
-    }
-    catch (e) {
-        resp.status(500).send({ result: "Fatal issue occured.", Response: e });
+        await Content.find()
+            .then((response) => {
+                resp.status(200).send({ result: "All contents are:", count: response.length, response: response });
+            }).catch((error) => {
+                resp.status(400).send({ result: "having issue while fetching data:", error: error })
+            })
+    } catch (e) {
+        resp.status(500).send({ result: "having fatal issue:", error: e })
     }
 })
 
 
-//add episode using contest box ids
+//add contetn in chapter box using chapter data  id
 
-app.post('/Session_box/add/Episode_no/:id', async (req, resp) => {
+app.post('/Contetn_box/add/content/:id', async (req, resp) => {
     try {
         let id = req.params.id;
-        const { Heading, Video_url, poster_url, session_no, Episode_no, Length, Release_Date } = req.body;
-        let data = { Heading, Video_url, poster_url, session_no, Episode_no, Length, Release_Date };
+        const { Heading,
+            desc1,
+            desc2,
+            desc3,
+            desc4,
+            desc5,
+            desc6,
+            desc7,
+            desc8,
+            desc9,
+            desc10,
+            image_url1,
+            image_url2,
+            image_url3,
+            image_url4,
+            image_url5,
+            after_desc1,
+            after_desc2,
+            after_desc3,
+            after_desc4 } = req.body;
+        let data = {
+            Heading,
+            desc1,
+            desc2,
+            desc3,
+            desc4,
+            desc5,
+            desc6,
+            desc7,
+            desc8,
+            desc9,
+            desc10,
+            image_url1,
+            image_url2,
+            image_url3,
+            image_url4,
+            image_url5,
+            after_desc1,
+            after_desc2,
+            after_desc3,
+            after_desc4
+        };
 
-        const addeddata = await SessionModel.findByIdAndUpdate(id, {
+        const addeddata = await Content.findByIdAndUpdate(id, {
             $push: { data }
         });
         if (addeddata) {
-            resp.status(200).send({ result: " session added  succeccfully", Response: addeddata });
+            resp.status(200).send({ result: " session added  succeccfully", response: addeddata });
         }
         else {
-            resp.status(404).send({ result: "Issue occured while pushing the data.", Response: null });
+            resp.status(404).send({ result: "Issue occured while pushing the data.", error: null });
         }
     } catch (e) {
-        resp.status(500).send({ result: "Having fatal issue", Response: e });
+        resp.status(500).send({ result: "Having fatal issue", error: e });
     }
 
 });
 
-//Update the value of a particular session's episode
 
-app.patch('/Session_box/update_episode/:id', async (req, resp) => {
+
+//Update the value of a particular chapter box content using id
+
+app.patch('/chapter_box/upadate_content/:id', async (req, resp) => {
     try {
         let id = req.params.id;
-        await SessionModel.findOneAndUpdate(
+        await Content.findOneAndUpdate(
             { 'data._id': id },
             { $set: { 'data.$': req.body } },
             { new: true }
         ).then((response) => {
-            resp.status(200).send({ result: "New episode values updated successfully.", Response: response });
+            resp.status(200).send({ result: "chapter content edited.", response: response });
         }).catch((error) => {
-            resp.status(400).send({ result: "getting error while updating the values", Response: error });
+            resp.status(400).send({ result: "getting error while updating the values", error: error });
         })
     }
     catch (e) {
-        resp.status(500).send({ result: "Fatal issue", Response: e });
+        resp.status(500).send({ result: "Fatal issue", error: e });
     }
 })
 
-//delete a particular episode 
 
-app.post('/Session_box/delete/epiode/:id', async (req, resp) => {
 
+//delete a particular content from chapter using chapter id and content id.
+
+app.post('/chapter_box/delete/content/:id', async (req, resp) => {
     try {
-        let id = req.params.id;
-        let episode_id = req.body.episode_id
-        await SessionModel.findOneAndUpdate(
-            { _id: id },
-            { $pull: { data: { _id: episode_id } } },
+        let chapter_id = req.params.id;
+        let content_id = req.body.episode_id
+        await Content.findOneAndUpdate(
+            { _id: chapter_id },
+            { $pull: { data: { _id: content_id } } },
             { new: true }
         ).then((response) => {
-            resp.status(200).send({ result: "deleted successfully.", Response: response.deletedCount });
+            resp.status(200).send({ result: "content deleted successfully.", response: response });
         }).catch((er) => {
-            resp.status(400).send({ result: "getting issue while deleting this data", Response: er });
+            resp.status(400).send({ result: "getting issue while deleting this data", error: er });
         })
     }
     catch (e) {
-        resp.status(500).send({ result: "Fatal issue occured.", Response: e });
+        resp.status(500).send({ result: "Fatal issue occured.", error: e });
     }
 })
 
 
-//delete all movies from database.
+//delete all chapter  from database.
 
-app.delete('/delete/whole/movies', async (req, resp) => {
+app.delete('/delete/chapter/content', async (req, resp) => {
     try {
-        await MovieModel.deleteMany().then((response) => {
-            resp.status(200).send({ result: "deleted whole movies", response: response });
+        await Content.deleteMany().then((response) => {
+            resp.status(200).send({ result: "whole chapter deleted", response: response });
         }).catch((error) => {
             resp.status(400).send({ result: "getting error while deleting data", Error: error })
         })
@@ -355,13 +444,15 @@ app.delete('/delete/whole/movies', async (req, resp) => {
 })
 
 
-// get all leagues from a particular data array
+// get all contents  from a particular chapter array using chapter id
 
-app.get('/get_all/episode/of_a_session/:id', async (req, resp) => {
+app.get('/get_all/content/of_a_chapter/:id', async (req, resp) => {
     try {
         let id = req.params.id;
-        await SessionModel.findById(id).then((response) => {
-            resp.status(200).send({ result: 'result is =', response: response })
+        await Content.findById(id).then((response) => {
+            resp.status(200).send({ result: 'result is =:',
+            content_count:response.data.length,
+            response: response })
         }).catch((error) => {
             resp.status(400).send({ result: "getting error while fetching", Error: error });
         })
@@ -370,28 +461,15 @@ app.get('/get_all/episode/of_a_session/:id', async (req, resp) => {
     }
 })
 
-//get all session data
 
-app.get('/get_all/session/data', (req, resp) => {
-    try {
-        SessionModel.find().then((response) => {
-            resp.status(200).send({ result: response })
-        }).catch((error) => {
-            resp.status(400).send({ result: "having some issue while getting data", Error: error });
-        })
 
-    } catch (e) {
-        resp.status(500).send({ result: 'havinga fatal error', Error: e })
-    }
-})
 
-//delete session data  by ids
+//delete particular chapter  by id
 
-app.delete('/delet/session/byid/:id', (req, resp) => {
+app.delete('/delet/chapter/byid/:id', (req, resp) => {
     try {
         let id = req.params.id;
-
-        SessionModel.findByIdAndDelete(id, { new: true }).then((response) => {
+        Content.findByIdAndDelete(id, { new: true }).then((response) => {
             resp.status(200).send({ result: "deleted successfully", response: response });
         }).catch((error) => {
             resp.status(400).send({ result: "having issue while deleting", Error: error });
@@ -403,7 +481,7 @@ app.delete('/delet/session/byid/:id', (req, resp) => {
 })
 
 
-
+/*
 // get last created movies
 
 app.get('/get/last_created/movie', (req, resp) => {
@@ -435,7 +513,7 @@ app.get('/get/last_modified/movie', (req, resp) => {
 })
 
 
-    //MySchema.find().sort({ createdAt: -1 }).limit(10)  // 10 latest docs
+//MySchema.find().sort({ createdAt: -1 }).limit(10)  // 10 latest docs
 //MySchema.find().sort({ createdAt: 1 }).limit(10) // 10 oldest doc
 
 
@@ -490,6 +568,12 @@ export async function verifyUser(req, res, next){
     }
 }
 */
+
+
+
+
+
+
 
 // Register user using email, password, confirm password
 
@@ -574,7 +658,7 @@ app.post('/User/login', async (req, resp) => {
                 resp.status(400).send({ result: "Email id not found...", error: error })
             })
     } catch (e) {
-        resp.status(500).send({ result: "having fatal issue..", error: e})
+        resp.status(500).send({ result: "having fatal issue..", error: e })
     }
 })
 
@@ -611,9 +695,9 @@ app.post('/reset/password', async (req, resp) => {
                 if (response != null) {
                     let pass = response.password;
 
-                    UserModel.updateOne({ password: pass }, { $set: {password: newpassword } }, { new: true })
+                    UserModel.updateOne({ password: pass }, { $set: { password: newpassword } }, { new: true })
                         .then((ress) => {
-                            resp.status(200).send({ result: "Password reset done.", response: ress.modifiedCount});
+                            resp.status(200).send({ result: "Password reset done.", response: ress.modifiedCount });
                         }).catch((error) => {
                             resp.status(400).send({ result: "having issue while updating new password:", error: error })
                         })
